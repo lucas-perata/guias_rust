@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{self, BufRead, BufReader, Error, Write};
+use std::io::{self, BufRead};
 use std::path::Path;
 use std::vec::Vec;
 
@@ -26,19 +26,20 @@ where
 }
 
 fn compare_words(words: Vec<String>) {
+    let mut tries: usize = 0;
     // For each word
     let word = &words[0];
     let mut letters: Vec<char> = Vec::new();
     let mut user_progress: Vec<char> = Vec::new();
-    let mut user_word: Vec<String> = Vec::new();
+    let mut user_word: String = String::new();
+    let mut check;
 
     for l in word.chars() {
         letters.push(l);
     }
 
-    println!("{} - {} -", letters[0], letters[2]);
-
     println!("Ingresa las letras faltantes");
+    println!("_ _ _ _");
 
     loop {
         let mut user_input: String = String::new();
@@ -46,25 +47,33 @@ fn compare_words(words: Vec<String>) {
             .read_line(&mut user_input)
             .expect("ERROR leyendo la línea");
 
-        println!(
-            "{:?}",
-            letters
-                .iter()
-                .find(|&&l| l == user_input.chars().next().unwrap())
-        );
+        check = letters
+            .iter()
+            .find(|&&l| l == user_input.chars().next().unwrap());
 
-        user_progress.push(user_input.chars().next().unwrap());
-
-        for c in &user_progress {
-            println!("{}", c);
+        if let Some(position) = word.find(user_input.chars().next().unwrap()) {
+            println!("La letra está en posición {}", position);
+            user_progress.push(user_input.chars().next().unwrap());
+            user_word = user_progress.clone().into_iter().collect();
+        } else {
+            println!("------Error------");
+            println!("Intentos restantes: {} ", 5 - tries);
         }
 
-        // if user_input.chars().next().unwrap() == letters[0] {
-        //     println!("Correcto");
-        //     println!("{} {} {} -", letters[0], letters[1], letters[2]);
-        // } else {
-        //     println!("Prueba de nuevo");
-        //     break;
-        // }
+        println!("{}", user_word);
+
+        if &user_word == word {
+            println!("Ganaste! \nLa palabra es: {}", word);
+            break;
+        }
+
+        if tries == 4 {
+            println!("Perdiste, volvé a intentarlo");
+            break;
+        }
+
+        tries += 1;
     }
 }
+
+fn find_position(word: &str, character: char) -> Vec<usize> {}
